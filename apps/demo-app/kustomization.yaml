@@ -5,3 +5,6 @@ resources:
   - deployment.yaml
   - service.yaml
   - servicemonitor.yaml
+images:
+  - name: ghcr.io/arezoumontazeri/demo-app
+    newTag: "0.2.0"
