@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-data
+  labels:
+    app.kubernetes.io/name: demo-app
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false   # never auto-delete shared data
+spec:
+  accessModes: [ReadWriteMany]
+  storageClassName: nfs-rwx
+  resources:
+    requests:
+      storage: 1Gi
