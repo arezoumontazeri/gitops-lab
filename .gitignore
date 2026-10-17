@@ -1,0 +1,6 @@
+# This repository is PUBLIC: never commit credentials
+*kubeconfig*
+*.key
+*.pem
+.env
+secrets/
