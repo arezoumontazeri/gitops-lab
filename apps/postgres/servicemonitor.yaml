@@ -8,8 +8,6 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: postgres
-    matchExpressions:
-      - {key: kubernetes.io/service-name, operator: DoesNotExist}
   endpoints:
     - port: metrics
       interval: 15s
