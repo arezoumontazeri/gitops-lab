@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: storage-simulator
+  labels:
+    app.kubernetes.io/name: storage-simulator
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: storage-simulator
+  endpoints:
+    - {port: http, path: /metrics, interval: 15s}
