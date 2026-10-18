@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: loadgen-storage
+  namespace: observability-demo
+  labels:
+    app.kubernetes.io/name: loadgen-storage
+    app.kubernetes.io/part-of: observability-lab
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 420
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: loadgen-storage
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: loadgen
+          image: curlimages/curl:8.11.1
+          env:
+            - {name: S, value: "http://storage-simulator"}
+            - {name: DURATION, value: "360"}
+          command: ["sh", "-c"]
+          args:
+            - |
+              end=$(( $(date +%s) + DURATION ))
+              run() {
+                i=0
+                while [ "$(date +%s)" -lt "$end" ]; do
+                  f="load-$1-$((i % 10)).bin"
+                  curl -s -o /dev/null -w '%{http_code}\n' -X POST "$S/storage/write" \
+                    -H 'Content-Type: application/json' -d "{\"filename\":\"$f\",\"size_bytes\":65536}"
+                  curl -s -o /dev/null -w '%{http_code}\n' "$S/storage/read/$f"
+                  i=$((i + 1)); sleep 0.1
+                done > "/tmp/codes-$1"
+              }
+              run a & run b & wait
+              echo "status codes seen by the client:"; cat /tmp/codes-* | sort | uniq -c
+          resources:
+            requests: {cpu: 20m, memory: 16Mi}
+            limits: {cpu: 200m, memory: 64Mi}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 100
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: tmp
+          emptyDir: {sizeLimit: 16Mi}
