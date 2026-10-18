@@ -7,4 +7,4 @@ resources:
   - servicemonitor.yaml
 images:
   - name: ghcr.io/arezoumontazeri/demo-app
-    newTag: "0.2.0"
+    newTag: "0.2.1"
